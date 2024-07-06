@@ -20,6 +20,8 @@ The API has three endpoints:
 | `/model` | Predicts water potability based on the provided parameters. |
 | `/model/csv` | Accepts a CSV file containing water quality data and returns a JSON response containing the predictions for each row of the CSV file. |
 
+## `/model` endpoint
+
 ### Parameters
 
 - `temperature`: The temperature of the water in degrees Celsius.
@@ -31,37 +33,43 @@ The API has three endpoints:
 - `fecalcaliform`: The fecal coliform found in the intestines of warm-blooded animals, used as an indicator of water contamination by fecal matter, measured in colony-forming units per 100 milliliters.
 - `totalcaliform`: The total Coliform found in the environment, used as an indicator of overall water quality, measured in colony-forming units per 100 milliliters.
 
-The response will be a JSON object like the following:
+### Response
+
+The response will be a JSON object with the following structure:
 
 ```json
 {
 	"detail": [
 		{
 			"type": "prediction_result",
-			"msg": true
+			"msg": <boolean>
 		}
 	]
 }
 ```
 
-Request
-The request should be a POST request to /model/csv with a CSV file as the request body. The CSV file should have the following columns in the following order:
+## `/model/csv` endpoint
 
-temperature (required, float)
-do (required, float)
-pH (required, float)
-conductivity (required, float)
-bod (optional, float, default: 0)
-nitrate (optional, float, default: 0)
-fecalcaliform (optional, float, default: 0)
-totalcaliform (optional, float, default: 0)
-The first row of the CSV file should be a header row containing the column names.
+### Request
 
-Response
+The request should be a POST request to `/model/csv` with a CSV file as the request body. The CSV file should have the following columns in the following order:
+
+1. `temperature` (float)
+2. `do` (float)
+3. `pH` (float)
+4. `conductivity` (float)
+5. `bod` (float)
+6. `nitrate` (float)
+7. `fecalcaliform` (float)
+8. `totalcaliform` (float)
+
+**Important:** The first row of the CSV file should be a header row containing the column names.
+
+### Response
+
 The response will be a JSON object with the following structure:
 
-Copy
-Insert
+```json
 {
   "detail": [
     {
@@ -74,43 +82,4 @@ Insert
     ...
   ]
 }
-The detail field is an array of objects, one for each row of the CSV file. Each object has a type field with the value "prediction_result", and a msg field with an object containing the following fields:
-
-position (integer): the row number of the CSV file (starting from 0)
-result (boolean): the prediction for the row
-Example
-Here's an example of a request and response:
-
-Request:
-
-Copy
-Insert
-POST /model/csv HTTP/1.1
-Content-Type: text/csv
-
-temperature,do,pH,conductivity,bod,nitrate,fecalcaliform,totalcaliform
-25.0,8.0,7.5,500.0,10.0,50.0,0.0,0.0
-26.0,7.0,8.0,400.0,0.0,100.0,50.0,100.0
-Response:
-
-Copy
-Insert
-{
-  "detail": [
-    {
-      "type": "prediction_result",
-      "msg": {
-        "position": 0,
-        "result": true
-      }
-    },
-    {
-      "type": "prediction_result",
-      "msg": {
-        "position": 1,
-        "result": false
-      }
-    }
-  ]
-}
-
+```
