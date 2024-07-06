@@ -35,14 +35,16 @@ The API has three endpoints:
 
 ### Response
 
-The response will be a JSON object with the following structure:
+The response will be a JSON object like the following:
 
 ```json
 {
 	"detail": [
 		{
 			"type": "prediction_result",
-			"msg": true
+			"msg": {
+				"is_potable": true
+			}
 		}
 	]
 }
@@ -65,18 +67,29 @@ The request should be a POST request to `/model/csv` with a CSV file as the requ
 
 **Important:** The first row of the CSV file should be a header row containing the column names.
 
+### Parameters
+
+- `skip`: The number of predictions to skip. Default is `0`.
+- `limit`: The maximum number of predictions to return. Default is `100`.
+- `file`: The CSV file to be processed.
+
 ### Response
 
 The response will be a JSON object like the following:
 
 ```json
 {
+	"pagination": {
+    "page": 1,
+    "total_items": 1000,
+    "items_per_page": 100
+  },
   "detail": [
     {
       "type": "prediction_result",
       "msg": {
         "position": 0,
-        "result": true
+        "is_potable": true
       }
     },
     ...

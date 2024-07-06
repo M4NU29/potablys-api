@@ -27,33 +27,48 @@ def read_model(
   nitrate: float = Query(..., ge=0, le=900),
   fecalcaliform: float = Query(..., ge=0, le=900),
   totalcaliform: float = Query(..., ge=0, le=2000)
-) -> dict[str, list[dict[str, str | bool]]]:
+) -> dict[str, list[dict[str, str | dict[str, bool]]]]:
 	return {
 		"detail": [
 			{
 				"type": "prediction_result",
-				"msg": bool(predict_potability(temperature, do, pH, conductivity, bod, nitrate, fecalcaliform, totalcaliform))
+				"msg": {
+					"is_potable": bool(predict_potability(temperature, do, pH, conductivity, bod, nitrate, fecalcaliform, totalcaliform))
+				}
 			}
 		]
 	}
 
 @app.post("/model/csv")
-async def get_predictions(file: UploadFile = File(...)) -> dict[str, list[dict[str, str | dict[str, int | bool]]]]:
+async def get_predictions(
+	skip: int = 0,
+	limit: int = 100,
+	file: UploadFile = File(...)
+) -> dict[str, list[dict[str, str | dict[str, int | bool]]] | dict[str, int]]:
 	csv_data: str = file.file.read().decode()
 	reader: Iterator[list[str]] = csv.reader(StringIO(csv_data))
 
 	next(reader)
 	results: list[bool] = [bool(predict_potability(*map(float, line))) for line in reader]
 
+	total = len(results)
+	total_pages = (total // limit) + (1 if total % limit > 0 else 0)
+
 	return {
+		"pagination": {
+			"page": skip // limit + 1,
+			"total_items": total,
+			"items_per_page": limit,
+			"total_pages": total_pages
+		},
 		"detail": [
 			{
 				"type": "prediction_result",
 				"msg": {
 					"position": i,
-					"result": result
+					"is_potable": result
 				}
 			}
-			for i, result in enumerate(results)
+			for i, result in enumerate(results[skip:skip+limit])
 		]
 	}
