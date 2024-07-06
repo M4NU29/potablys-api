@@ -42,7 +42,7 @@ The response will be a JSON object with the following structure:
 	"detail": [
 		{
 			"type": "prediction_result",
-			"msg": <boolean>
+			"msg": true
 		}
 	]
 }
@@ -67,7 +67,7 @@ The request should be a POST request to `/model/csv` with a CSV file as the requ
 
 ### Response
 
-The response will be a JSON object with the following structure:
+The response will be a JSON object like the following:
 
 ```json
 {
@@ -75,8 +75,8 @@ The response will be a JSON object with the following structure:
     {
       "type": "prediction_result",
       "msg": {
-        "position": <integer>,
-        "result": <boolean>
+        "position": 0,
+        "result": true
       }
     },
     ...
